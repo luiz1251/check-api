@@ -12,8 +12,7 @@ public class Usuario {
     private String name;
     private String email;
     private String password;
-    @OneToMany
-    @JoinColumn(name="tarefa_id")
+    @OneToMany(mappedBy = "usuario")
     private List<Tarefa> tarefas = new ArrayList<Tarefa>();
 
     public int getIdUsuario() {

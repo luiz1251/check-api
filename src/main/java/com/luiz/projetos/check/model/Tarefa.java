@@ -9,10 +9,9 @@ import java.util.Date;
 public class Tarefa {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "tarefa_id")
     private int idTarefa;
     @ManyToOne
-    @JoinColumn(name = "usuario_id_usuario")
+    @JoinColumn(name = "usuario_id")
     private Usuario usuario;
     private String description;
     private Date creationDate;
