@@ -9,7 +9,7 @@ import java.util.Date;
 public class Tarefa {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int idTarefa;
+    private Long idTarefa;
     @ManyToOne
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
@@ -18,11 +18,11 @@ public class Tarefa {
     private Date dueDate;
     private Status status;
 
-    public int getIdTarefa() {
+    public Long getIdTarefa() {
         return idTarefa;
     }
 
-    public void setIdTarefa(int idTarefa) {
+    public void setIdTarefa(Long idTarefa) {
         this.idTarefa = idTarefa;
     }
 

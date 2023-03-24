@@ -8,18 +8,19 @@ import java.util.List;
 public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int idUsuario;
+    private Long idUsuario;
     private String name;
+    @Column(unique = true)
     private String email;
     private String password;
     @OneToMany(mappedBy = "usuario")
     private List<Tarefa> tarefas = new ArrayList<Tarefa>();
 
-    public int getIdUsuario() {
+    public Long getIdUsuario() {
         return idUsuario;
     }
 
-    public void setIdUsuario(int idUsuario) {
+    public void setIdUsuario(Long idUsuario) {
         this.idUsuario = idUsuario;
     }
 
