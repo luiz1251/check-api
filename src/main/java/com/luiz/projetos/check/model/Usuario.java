@@ -5,16 +5,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "tb_usuario")
 public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "usuario_id")
     private Long idUsuario;
     private String name;
     @Column(unique = true)
     private String email;
     private String password;
     @OneToMany(mappedBy = "usuario")
-    private List<Tarefa> tarefas = new ArrayList<Tarefa>();
+    private List<Tarefa> tarefas;
 
     public Long getIdUsuario() {
         return idUsuario;

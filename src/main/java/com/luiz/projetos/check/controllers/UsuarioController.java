@@ -26,7 +26,7 @@ public class UsuarioController {
         }
     }
 
-    @GetMapping("/id")
+    @GetMapping("/{id}")
     public ResponseEntity<Usuario> findById(@PathVariable Long id){
         Optional<Usuario> usuario = userService.findById(id);
         if(usuario.isPresent()){

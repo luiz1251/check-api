@@ -3,7 +3,7 @@ package com.luiz.projetos.check.model;
 import com.luiz.projetos.check.model.enumeration.Status;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 public class Tarefa {
@@ -14,8 +14,8 @@ public class Tarefa {
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
     private String description;
-    private Date creationDate;
-    private Date dueDate;
+    private LocalDate creationDate;
+    private LocalDate dueDate;
     private Status status;
 
     public Long getIdTarefa() {
@@ -42,19 +42,19 @@ public class Tarefa {
         this.description = description;
     }
 
-    public Date getCreationDate() {
+    public LocalDate getCreationDate() {
         return creationDate;
     }
 
-    public void setCreationDate(Date creationDate) {
+    public void setCreationDate(LocalDate creationDate) {
         this.creationDate = creationDate;
     }
 
-    public Date getDueDate() {
+    public LocalDate getDueDate() {
         return dueDate;
     }
 
-    public void setDueDate(Date dueDate) {
+    public void setDueDate(LocalDate dueDate) {
         this.dueDate = dueDate;
     }
 
