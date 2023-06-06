@@ -22,6 +22,7 @@ public class Tarefa {
     private String description;
     private LocalDate creationDate;
     private LocalDate dueDate;
+    @Enumerated(EnumType.STRING)
     private Status status;
 
 }

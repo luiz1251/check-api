@@ -5,6 +5,7 @@ import com.luiz.projetos.check.exceptions.UsuarioNaoEncontradoException;
 import com.luiz.projetos.check.model.Usuario;
 import com.luiz.projetos.check.repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
