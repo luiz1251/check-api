@@ -14,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TarefaService {
@@ -26,7 +28,7 @@ public class TarefaService {
     private final DateTimeFormatter DATE_PATTERN = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     @Transactional
-    public TarefaResponseDTO create(TarefaDTO dto){
+    public TarefaResponseDTO criarTarefa(TarefaDTO dto){
         Usuario usuario = usuarioRepository.findById(dto.getIdUsuario())
                 .orElseThrow(() -> new RegraDeNegocioException("Código de usuário inválido: " + dto.getIdUsuario()));
 
@@ -60,7 +62,8 @@ public class TarefaService {
                 .build();
     }
 
-    public TarefaResponseDTO update(Long idTarefa, TarefaDTO dto) {
+    @Transactional
+    public TarefaResponseDTO atualizarTarefa(Long idTarefa, TarefaDTO dto) {
         Tarefa tarefaAtualizada = tarefaRepository.findById(idTarefa).map(t -> {
             t.setDescription(dto.getDescription());
             t.setDueDate(LocalDate.parse(dto.getDueDate(), DATE_PATTERN));
@@ -68,11 +71,30 @@ public class TarefaService {
         }).orElseThrow(() -> new RegraDeNegocioException("Código da tarefa inválido: " + idTarefa));
 
         Usuario user = usuarioRepository.findById(dto.getIdUsuario())
-                .orElseThrow(() -> new RegraDeNegocioException("Código da usuário inválido: " + dto.getIdUsuario()));
+                .orElseThrow(() -> new RegraDeNegocioException("Código de usuário inválido: " + dto.getIdUsuario()));
         tarefaAtualizada.setUsuario(user);
         tarefaRepository.save(tarefaAtualizada);
 
         return buildDTO(tarefaAtualizada);
     }
+
+    public void atualizarStatus(Long id, String statusAtualizado) {
+        try {
+            Status status = Status.valueOf(statusAtualizado.toUpperCase());
+            Tarefa tarefa = tarefaRepository.findById(id).map(t -> {
+                t.setStatus(status);
+                return t;
+            }).orElseThrow(() -> new RegraDeNegocioException("Código de tarefa inválido: " + id));
+            tarefaRepository.save(tarefa);
+        } catch (IllegalArgumentException exception){
+            throw new RegraDeNegocioException("Status " + statusAtualizado + " inválido");
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public List<TarefaResponseDTO> obterTarefas() {
+        return tarefaRepository.findAll().stream().map(this::buildDTO).collect(Collectors.toList());
+    }
 }
+
 
