@@ -5,9 +5,13 @@ import com.luiz.projetos.check.exceptions.RegraDeNegocioException;
 import com.luiz.projetos.check.exceptions.TarefaNaoEncontradaException;
 import com.luiz.projetos.check.exceptions.UsuarioNaoEncontradoException;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class ApplicationControllerAdvice {
@@ -27,5 +31,15 @@ public class ApplicationControllerAdvice {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     private ApiErrors handleTarefaNaoEncontradaException(TarefaNaoEncontradaException ex){
         return new ApiErrors(ex.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    private ApiErrors handleMethodArgumentNotValidException(MethodArgumentNotValidException ex){
+        List<String> errorsList = ex.getBindingResult().getAllErrors().stream()
+                .map(erros -> erros.getDefaultMessage())
+                .collect(Collectors.toList());
+
+        return new ApiErrors(errorsList);
     }
 }

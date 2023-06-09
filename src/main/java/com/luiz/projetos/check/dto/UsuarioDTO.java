@@ -1,36 +1,19 @@
 package com.luiz.projetos.check.dto;
 
-import javax.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotEmpty;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class UsuarioDTO {
-    @NotBlank(message = "Name is requiered")
+    @NotEmpty(message = "{field.name.required}")
     private String name;
-    @NotBlank(message = "E-mail is requiered")
+    @NotEmpty(message = "{field.email.required}")
     private String email;
-    @NotBlank(message = "Password is requiered")
+    @NotEmpty(message = "{field.password.required}")
     private String password;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
 }

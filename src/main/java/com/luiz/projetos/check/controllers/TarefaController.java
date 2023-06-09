@@ -33,13 +33,13 @@ public class TarefaController {
     }
 
     @PutMapping("/{id}")
-    public TarefaResponseDTO update(@PathVariable Long id, @RequestBody TarefaDTO dto) {
+    public TarefaResponseDTO update(@PathVariable Long id, @Valid @RequestBody TarefaDTO dto) {
         return tarefaService.atualizarTarefa(id, dto);
     }
 
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateStatus(@PathVariable Long id, @RequestBody StatusDTO status){
+    public void updateStatus(@PathVariable Long id, @Valid @RequestBody StatusDTO status){
         tarefaService.atualizarStatus(id, status.getStatus());
     }
 }
