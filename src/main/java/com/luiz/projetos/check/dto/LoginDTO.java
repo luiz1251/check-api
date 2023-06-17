@@ -1,26 +1,17 @@
 package com.luiz.projetos.check.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.validation.constraints.NotNull;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class LoginDTO {
-    @NotNull
+    @NotNull(message = "{field.email.required}")
     private String login;
-    @NotNull
+    @NotNull(message = "{field.password.required}")
     private String password;
-
-    public String getLogin() {
-        return login;
-    }
-
-    public void setLogin(String login) {
-        this.login = login;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
 }

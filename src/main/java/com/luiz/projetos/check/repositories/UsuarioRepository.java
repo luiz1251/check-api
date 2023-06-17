@@ -17,4 +17,10 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     @Query("select u from Usuario u where u.email = :email and u.id = :id")
     Optional<Usuario> emailBelongsToAnother(@Param("email") String email, @Param("id") Long id);
+
+    Optional<Usuario> findByName(String username);
+
+    Optional<Usuario> findByEmail(String email);
+
+    boolean existsByEmail(String email);
 }

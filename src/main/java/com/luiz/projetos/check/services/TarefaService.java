@@ -3,12 +3,18 @@ package com.luiz.projetos.check.services;
 import com.luiz.projetos.check.dto.TarefaDTO;
 import com.luiz.projetos.check.dto.TarefaResponseDTO;
 import com.luiz.projetos.check.exceptions.RegraDeNegocioException;
+import com.luiz.projetos.check.exceptions.TarefaNaoEncontradaException;
+import com.luiz.projetos.check.exceptions.UsuarioNaoEncontradoException;
 import com.luiz.projetos.check.model.Tarefa;
 import com.luiz.projetos.check.model.Usuario;
 import com.luiz.projetos.check.model.enumeration.Status;
 import com.luiz.projetos.check.repositories.TarefaRepository;
 import com.luiz.projetos.check.repositories.UsuarioRepository;
+import com.luiz.projetos.check.security.JwtService;
+import com.luiz.projetos.check.security.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,9 +35,10 @@ public class TarefaService {
 
     @Transactional
     public TarefaResponseDTO criarTarefa(TarefaDTO dto){
-        Usuario usuario = usuarioRepository.findById(dto.getIdUsuario())
-                .orElseThrow(() -> new RegraDeNegocioException("Código de usuário inválido: " + dto.getIdUsuario()));
-
+        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder
+                .getContext().getAuthentication().getPrincipal();
+        Usuario usuario = usuarioRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RegraDeNegocioException("Usuário inválido"));
         Tarefa tarefa = new Tarefa();
         tarefa.setUsuario(usuario);
         tarefa.setDescription(dto.getDescription());
@@ -46,8 +53,17 @@ public class TarefaService {
 
     @Transactional(readOnly = true)
     public TarefaResponseDTO obterTarefa(Long id) {
-        return tarefaRepository.findById(id).map(this::buildDTO)
-                .orElseThrow(() -> new RegraDeNegocioException("Código de tarefa inválido: " + id));
+        UserDetailsImpl userDetails =
+                (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String role = usuarioRepository.findById(userDetails.getId()).map(u -> u.getRoles().name())
+                .orElseThrow(UsuarioNaoEncontradoException::new);
+        if(role.equals("ADMIN")){
+            return tarefaRepository.findById(id).map(this::buildDTO)
+                    .orElseThrow(() -> new RegraDeNegocioException("Código de tarefa inválido: " + id));
+        }
+        Tarefa tarefa = tarefaRepository.findByIdUsuarioAndIdTarefa(userDetails.getId(), id)
+                .orElseThrow(TarefaNaoEncontradaException::new);
+        return buildDTO(tarefa);
     }
 
     private TarefaResponseDTO buildDTO(Tarefa tarefa){
@@ -70,8 +86,10 @@ public class TarefaService {
             return t;
         }).orElseThrow(() -> new RegraDeNegocioException("Código da tarefa inválido: " + idTarefa));
 
-        Usuario user = usuarioRepository.findById(dto.getIdUsuario())
-                .orElseThrow(() -> new RegraDeNegocioException("Código de usuário inválido: " + dto.getIdUsuario()));
+        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder
+                .getContext().getAuthentication().getPrincipal();
+        Usuario user = usuarioRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RegraDeNegocioException("Usuário inválido"));
         tarefaAtualizada.setUsuario(user);
         tarefaRepository.save(tarefaAtualizada);
 
@@ -94,6 +112,14 @@ public class TarefaService {
     @Transactional(readOnly = true)
     public List<TarefaResponseDTO> obterTarefas() {
         return tarefaRepository.findAll().stream().map(this::buildDTO).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        if(tarefaRepository.findById(id).isEmpty()){
+            throw new UsuarioNaoEncontradoException();
+        }
+        tarefaRepository.deleteById(id);
     }
 }
 

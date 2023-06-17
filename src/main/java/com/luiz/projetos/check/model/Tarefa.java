@@ -3,11 +3,12 @@ package com.luiz.projetos.check.model;
 import com.luiz.projetos.check.model.enumeration.Status;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 
-
+@CrossOrigin(origins = "*", maxAge = 3600)
 @Getter
 @Setter
 @Entity

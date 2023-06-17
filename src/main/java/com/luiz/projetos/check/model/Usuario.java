@@ -1,11 +1,14 @@
 package com.luiz.projetos.check.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.luiz.projetos.check.model.enumeration.Roles;
 import lombok.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import javax.persistence.*;
 import java.util.List;
 
+@CrossOrigin(origins = "*", maxAge = 3600)
 @Getter
 @Setter
 @Builder
@@ -32,5 +35,9 @@ public class Usuario {
     @JsonIgnore
     @OneToMany(mappedBy = "usuario")
     private List<Tarefa> tarefas;
+
+    @JsonIgnore
+    @Enumerated(EnumType.STRING)
+    private Roles roles;
 
 }

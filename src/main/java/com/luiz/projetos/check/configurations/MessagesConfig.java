@@ -1,4 +1,4 @@
-package com.luiz.projetos.check.configuratios;
+package com.luiz.projetos.check.configurations;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;

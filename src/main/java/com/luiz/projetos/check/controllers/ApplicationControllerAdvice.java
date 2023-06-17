@@ -2,6 +2,7 @@ package com.luiz.projetos.check.controllers;
 
 import com.luiz.projetos.check.dto.ApiErrors;
 import com.luiz.projetos.check.exceptions.RegraDeNegocioException;
+import com.luiz.projetos.check.exceptions.SenhaInvalidaException;
 import com.luiz.projetos.check.exceptions.TarefaNaoEncontradaException;
 import com.luiz.projetos.check.exceptions.UsuarioNaoEncontradoException;
 import org.springframework.http.HttpStatus;
@@ -41,5 +42,11 @@ public class ApplicationControllerAdvice {
                 .collect(Collectors.toList());
 
         return new ApiErrors(errorsList);
+    }
+
+    @ExceptionHandler(SenhaInvalidaException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    private ApiErrors handleMethodArgumentNotValidException(SenhaInvalidaException ex){
+        return new ApiErrors(ex.getMessage());
     }
 }

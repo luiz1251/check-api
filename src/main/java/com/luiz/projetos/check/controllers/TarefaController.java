@@ -42,4 +42,10 @@ public class TarefaController {
     public void updateStatus(@PathVariable Long id, @Valid @RequestBody StatusDTO status){
         tarefaService.atualizarStatus(id, status.getStatus());
     }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id){
+        tarefaService.delete(id);
+    }
 }

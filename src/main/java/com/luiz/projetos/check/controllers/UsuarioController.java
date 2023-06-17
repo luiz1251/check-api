@@ -24,21 +24,6 @@ public class UsuarioController {
     @Autowired
     private UsuarioService service;
 
-    @PostMapping
-    @ResponseStatus(CREATED)
-    public void createUser(@Valid @RequestBody UsuarioDTO dto){
-        if(service.emailAlreadyExists(dto)){
-            throw new RegraDeNegocioException("O email " + dto.getEmail() + " já está cadastrado.");
-        }
-        Usuario usuario = Usuario.builder()
-                        .email(dto.getEmail())
-                        .name(dto.getName())
-                        .password(dto.getPassword())
-                        .tarefas(Collections.emptyList())
-                                .build();
-        repository.save(usuario);
-    }
-
     @GetMapping("/{id}")
     public Usuario findById(@PathVariable Long id){
         return repository.findById(id).orElseThrow(UsuarioNaoEncontradoException::new);
