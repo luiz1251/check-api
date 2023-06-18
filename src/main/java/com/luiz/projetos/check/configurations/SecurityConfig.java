@@ -59,7 +59,9 @@ public class SecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and().authorizeRequests()
                 .antMatchers("/auth/**").permitAll()
-                .and().authorizeRequests().anyRequest().authenticated()
+                .antMatchers(HttpMethod.PUT,"/usuario/{id}").hasAnyAuthority("ADMIN", "USER")
+                .antMatchers("/usuario/**").hasAuthority("ADMIN")
+                .antMatchers("/tarefa/**").hasAnyAuthority("ADMIN", "USER")
                 .and().addFilterBefore(authenticationTokenFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }

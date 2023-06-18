@@ -33,12 +33,17 @@ public class TarefaService {
 
     private final DateTimeFormatter DATE_PATTERN = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    @Transactional
-    public TarefaResponseDTO criarTarefa(TarefaDTO dto){
+    private Usuario getCurrentUser(){
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder
                 .getContext().getAuthentication().getPrincipal();
-        Usuario usuario = usuarioRepository.findByEmail(userDetails.getUsername())
+        return usuarioRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new RegraDeNegocioException("Usuário inválido"));
+
+    }
+
+    @Transactional
+    public TarefaResponseDTO criarTarefa(TarefaDTO dto){
+        Usuario usuario = getCurrentUser();
         Tarefa tarefa = new Tarefa();
         tarefa.setUsuario(usuario);
         tarefa.setDescription(dto.getDescription());
@@ -53,15 +58,13 @@ public class TarefaService {
 
     @Transactional(readOnly = true)
     public TarefaResponseDTO obterTarefa(Long id) {
-        UserDetailsImpl userDetails =
-                (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String role = usuarioRepository.findById(userDetails.getId()).map(u -> u.getRoles().name())
-                .orElseThrow(UsuarioNaoEncontradoException::new);
+        Usuario usuario = getCurrentUser();
+        String role = usuario.getRoles().name();
         if(role.equals("ADMIN")){
             return tarefaRepository.findById(id).map(this::buildDTO)
                     .orElseThrow(() -> new RegraDeNegocioException("Código de tarefa inválido: " + id));
         }
-        Tarefa tarefa = tarefaRepository.findByIdUsuarioAndIdTarefa(userDetails.getId(), id)
+        Tarefa tarefa = tarefaRepository.findByIdUsuarioAndIdTarefa(usuario.getIdUsuario(), id)
                 .orElseThrow(TarefaNaoEncontradaException::new);
         return buildDTO(tarefa);
     }
@@ -80,16 +83,14 @@ public class TarefaService {
 
     @Transactional
     public TarefaResponseDTO atualizarTarefa(Long idTarefa, TarefaDTO dto) {
-        Tarefa tarefaAtualizada = tarefaRepository.findById(idTarefa).map(t -> {
+        Usuario user = getCurrentUser();
+        Tarefa tarefaAtualizada = tarefaRepository.
+                findByIdTarefaAndIdUsuario(idTarefa, user.getIdUsuario()).map(t -> {
             t.setDescription(dto.getDescription());
             t.setDueDate(LocalDate.parse(dto.getDueDate(), DATE_PATTERN));
             return t;
         }).orElseThrow(() -> new RegraDeNegocioException("Código da tarefa inválido: " + idTarefa));
 
-        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder
-                .getContext().getAuthentication().getPrincipal();
-        Usuario user = usuarioRepository.findByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new RegraDeNegocioException("Usuário inválido"));
         tarefaAtualizada.setUsuario(user);
         tarefaRepository.save(tarefaAtualizada);
 
@@ -99,11 +100,21 @@ public class TarefaService {
     public void atualizarStatus(Long id, String statusAtualizado) {
         try {
             Status status = Status.valueOf(statusAtualizado.toUpperCase());
-            Tarefa tarefa = tarefaRepository.findById(id).map(t -> {
-                t.setStatus(status);
-                return t;
-            }).orElseThrow(() -> new RegraDeNegocioException("Código de tarefa inválido: " + id));
-            tarefaRepository.save(tarefa);
+            Usuario usuario = getCurrentUser();
+            if(usuario.getRoles().name().equals("ADMIN")){
+                Tarefa tarefa = tarefaRepository.findById(id).map(t -> {
+                    t.setStatus(status);
+                    return t;
+                }).orElseThrow(() -> new RegraDeNegocioException("Código de tarefa inválido: " + id));
+                tarefaRepository.save(tarefa);
+            } else {
+                Tarefa tarefa = tarefaRepository.findByIdTarefaAndIdUsuario(id,
+                       usuario.getIdUsuario()).map(t -> {
+                    t.setStatus(status);
+                    return t;
+                }).orElseThrow(() -> new RegraDeNegocioException("Código de tarefa inválido: " + id));
+                tarefaRepository.save(tarefa);
+            }
         } catch (IllegalArgumentException exception){
             throw new RegraDeNegocioException("Status " + statusAtualizado + " inválido");
         }
@@ -111,7 +122,12 @@ public class TarefaService {
 
     @Transactional(readOnly = true)
     public List<TarefaResponseDTO> obterTarefas() {
-        return tarefaRepository.findAll().stream().map(this::buildDTO).collect(Collectors.toList());
+        Usuario usuario = getCurrentUser();
+        if(usuario.getRoles().name().equals("ADMIN")){
+            return tarefaRepository.findAll().stream().map(this::buildDTO).collect(Collectors.toList());
+        }
+        return tarefaRepository.findAllByIdUsuario(usuario.getIdUsuario())
+                .stream().map(this::buildDTO).toList();
     }
 
     @Transactional

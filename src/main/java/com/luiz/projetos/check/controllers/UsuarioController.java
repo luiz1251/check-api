@@ -7,8 +7,10 @@ import com.luiz.projetos.check.model.Usuario;
 import com.luiz.projetos.check.repositories.UsuarioRepository;
 import com.luiz.projetos.check.services.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
@@ -25,6 +27,7 @@ public class UsuarioController {
     private UsuarioService service;
 
     @GetMapping("/{id}")
+    @PreAuthorize("ADMIN")
     public Usuario findById(@PathVariable Long id){
         return repository.findById(id).orElseThrow(UsuarioNaoEncontradoException::new);
     }
